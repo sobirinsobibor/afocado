@@ -38,10 +38,10 @@ class AdminPanelProvider extends PanelProvider
             ->topNavigation()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
-            ->discoverResources(in: base_path('modules/Pos/Filament/Resources'), for: 'Modules\Pos\Filament\Resources')
-            ->discoverPages(in: base_path('modules/Pos/Filament/Pages'), for: 'Modules\Pos\Filament\Pages')
-            ->discoverResources(in: base_path('modules/Restaurant/Filament/Resources'), for: 'Modules\Restaurant\Filament\Resources')
-            ->discoverPages(in: base_path('modules/Restaurant/Filament/Pages'), for: 'Modules\Restaurant\Filament\Pages')
+            ->discoverResources(in: base_path('Modules/Pos/Filament/Resources'), for: 'Modules\Pos\Filament\Resources')
+            ->discoverPages(in: base_path('Modules/Pos/Filament/Pages'), for: 'Modules\Pos\Filament\Pages')
+            ->discoverResources(in: base_path('Modules/Restaurant/Filament/Resources'), for: 'Modules\Restaurant\Filament\Resources')
+            ->discoverPages(in: base_path('Modules/Restaurant/Filament/Pages'), for: 'Modules\Restaurant\Filament\Pages')
             ->pages([
                 Dashboard::class,
             ])

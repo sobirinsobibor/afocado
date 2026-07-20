@@ -34,6 +34,7 @@ class PosTransactionItem extends Model
         'pos_variant_info',
         'order_type',
         'pos_quantity',
+        'quantity_unit',
         'price',
         'subtotal',
         'tenant_id',
