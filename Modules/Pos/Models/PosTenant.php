@@ -21,8 +21,10 @@ class PosTenant extends Model
         'foodcourt_location_id',
         'name',
         'owner_name',
+        'owner_phone_number',
         'is_active',
         'photos',
+        'lokasi_tenant'
     ];
 
     protected $casts = [

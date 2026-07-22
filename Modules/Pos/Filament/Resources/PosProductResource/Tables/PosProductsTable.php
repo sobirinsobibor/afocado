@@ -5,9 +5,11 @@ namespace Modules\Pos\Filament\Resources\PosProductResource\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class PosProductsTable
@@ -27,37 +29,47 @@ class PosProductsTable
                 TextColumn::make('name')
                     ->label('Nama Produk')
                     ->searchable(),
-                
+
                 TextColumn::make('price')
-                    ->searchable(),
+                    ->label('Harga')
+                    ->searchable()
+                    ->sortable()
+                    ->formatStateUsing(fn ($state, $record) => 'Rp' . number_format($state, 0, ',', '.') . '/' . ($record->priceUnit?->name ?? '')),
+                
+               TextColumn::make('stock')
+                    ->label('Stok')
+                    ->searchable()
+                    ->sortable()
+                    ->formatStateUsing(fn ($state, $record) => number_format($state, 0, ',', '.') . ' ' . ($record->stockUnit?->name ?? '')),
 
-                TextColumn::make('stock')
-                    ->searchable(),
-
-                TextColumn::make('stockUnit.name')
-                    ->label('Unit Stok')
-                    ->sortable(),
-
-                TextColumn::make('priceUnit.name')
-                    ->label('Unit Harga')
-                    ->sortable(),
 
                 TextColumn::make('category.name')
                     ->searchable(),
 
-                IconColumn::make('has_variants')
-                    ->boolean(),
+                ToggleColumn::make('has_variants')
+                    ->label('Variant'),
 
-                TextColumn::make('tenant.name'),
+                ToggleColumn::make('is_dine_in')
+                    ->label('Dine In'),
 
-                TextColumn::make('tenant.foodcourtLocation.name')
-               
+                
+                ToggleColumn::make('is_take_away')
+                    ->label('Take Away'),
+
+                TextColumn::make('tenant.name')
+                    ->label('Tenant')
+                    ->searchable()
+                    ->description(fn ($record) => $record->tenant?->foodcourtLocation?->name ?? ''),  
+                    
+                ToggleColumn::make('is_active')
+                    ->label('Is Active'),
             ])
             ->filters([
                 //
             ])
             ->recordActions([
-                EditAction::make(),
+                ViewAction::make()->button()->hiddenLabel(),
+                EditAction::make()->button()->hiddenLabel(),
             ])
             ->toolbarActions([
                 // BulkActionGroup::make([

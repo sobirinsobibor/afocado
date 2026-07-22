@@ -35,6 +35,9 @@ class PosTransaction extends Model
         'total',
         'payment_method',
         'transaction_date',
+        'note',
+        'customer_phone',
+        'customer_email'
     ];
 
     protected $casts = [

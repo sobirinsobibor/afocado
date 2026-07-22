@@ -45,7 +45,7 @@ class PosProduct extends Model
         'stock_unit_id',
         'photos',
         'is_dine_in',
-        'is_take_away',
+        'is_take_away'
     ];
 
     protected $casts = [

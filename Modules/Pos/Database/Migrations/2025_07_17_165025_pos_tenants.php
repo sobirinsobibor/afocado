@@ -17,7 +17,9 @@ return new class extends Migration
             $table->foreignId('foodcourt_location_id')->constrained('pos_foodcourt_locations')->restrictOnDelete();
             $table->string('name', 255);
             $table->string('owner_name')->nullable();
+            $table->string('owner_phone_number')->nullable();
             $table->json('photos')->nullable();
+            $table->string('lokasi_tenant')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 

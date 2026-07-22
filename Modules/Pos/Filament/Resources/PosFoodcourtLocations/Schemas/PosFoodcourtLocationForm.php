@@ -22,6 +22,11 @@ class PosFoodcourtLocationForm
                     ->maxLength(255)
                     ->columnSpanFull(),
 
+                Textarea::make('address')
+                    ->label('Alamat')
+                    ->rows(2)
+                    ->columnSpanFull(),
+
                 FileUpload::make('photos')
                     ->label('Foto Lokasi')
                     ->helperText('Maksimal 3 foto, ukuran masing-masing hingga 3 MB')                    
@@ -39,11 +44,6 @@ class PosFoodcourtLocationForm
                     ->disk('local')
                     ->panelLayout('grid')          // 👈 kuncinya di sini
                     ->imagePreviewHeight('100')    // 👈 atur tinggi preview jadi lebih kecil
-                    ->columnSpanFull(),
-
-                Textarea::make('address')
-                    ->label('Alamat')
-                    ->rows(3)
                     ->columnSpanFull(),
 
                 Toggle::make('is_active')

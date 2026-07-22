@@ -32,7 +32,45 @@ class PosTenantForm
 
                 TextInput::make('owner_name')
                     ->label('Nama Pemilik')
+                    ->maxLength(255),
+
+                TextInput::make('owner_phone_number')
+                    ->label('Kontak Pemilik')
+                    ->tel()
+                    ->prefix('+62')
+                    ->placeholder('81234567890')
+                    ->maxLength(15)
+                    ->dehydrateStateUsing(function (?string $state) {
+                        if (blank($state)) {
+                            return $state;
+                        }
+
+                        // buang semua karakter selain angka
+                        $number = preg_replace('/\D/', '', $state);
+
+                        // normalize ke format 62xxxxxxxxxx
+                        if (str_starts_with($number, '0')) {
+                            $number = '62' . substr($number, 1);
+                        } elseif (str_starts_with($number, '8')) {
+                            $number = '62' . $number;
+                        } elseif (!str_starts_with($number, '62')) {
+                            $number = '62' . $number;
+                        }
+
+                        return $number;
+                    })
+                    ->afterStateHydrated(function ($component, $state) {
+                        // pas edit, tampilkan tanpa prefix 62 biar konsisten sama input +62
+                        if (filled($state) && str_starts_with($state, '62')) {
+                            $component->state(substr($state, 2));
+                        }
+                    }),
+
+                TextInput::make('lokasi_tenant')
+                    ->label('Nomor/Blok Tenant')
                     ->columnSpanFull()
+                    ->placeholder('contoh: A-12 atau Blok B No. 5')
+                    ->helperText('Isi nomor atau blok lokasi tenant')
                     ->maxLength(255),
 
                 FileUpload::make('photos')
