@@ -1199,10 +1199,16 @@
         </div>
         @endif
 
+        {{-- Body scroll-lock watcher: elemen ini SENGAJA selalu ada di DOM (tidak dibungkus @if),
+             supaya x-effect tetap "hidup" dan bisa melepas class overflow-hidden saat modal ditutup.
+             Kalau x-data/x-effect ini ditaruh di dalam blok @if modal, saat showProductModal jadi false
+             seluruh <div> modal (termasuk x-effect-nya) langsung dihapus dari DOM bersamaan,
+             sehingga efek "hapus overflow-hidden" itu tidak sempat jalan -> body jadi stuck tidak bisa discroll. --}}
+        <div x-data x-effect="document.body.classList.toggle('overflow-hidden', $wire.showProductModal)"></div>
+
         {{-- Product Modal --}}
         @if($showProductModal && $selectedProduct)
-        <div x-data x-effect="document.body.classList.toggle('overflow-hidden', $wire.showProductModal)"
-            class="fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div class="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div class="absolute inset-0 backdrop-blur-sm bg-black/10">
             </div>
 
@@ -1309,6 +1315,7 @@
                                     @foreach($group->children as $option)
                                     @php
                                     $isOutOfStock = $option->stock <= 0; @endphp <label
+                                        wire:key="variant-option-{{ $group->id }}-{{ $option->id }}"
                                         class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg border text-xs cursor-pointer transition-colors duration-150
                                                         {{ $isOutOfStock
                                                             ? 'border-gray-100 dark:border-gray-700 opacity-50 cursor-not-allowed'
