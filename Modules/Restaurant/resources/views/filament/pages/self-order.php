@@ -55,8 +55,8 @@
                 {{-- Product Grid --}}
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                     <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Pilih Produk</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto"
-                        wire:key="product-grid" style="scroll-behavior: smooth;">
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-96 overflow-y-auto"
+                        wire:key="product-grid">
                         @forelse($this->availableProducts as $product)
                         <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:shadow-md transition-shadow duration-150"
                             wire:key="product-{{ $product->id }}">
@@ -117,6 +117,7 @@
 
 
                                 @if (! $hasAnyService)
+                                {{-- dua-duanya dimatikan tenant --}}
                                 <div class="px-2 py-2 bg-gray-200 text-gray-500 text-xs rounded-md text-center">
                                     Tidak Tersedia
                                 </div>
@@ -179,22 +180,28 @@
 
             </div>
 
-            {{-- DESKTOP CART (hidden di mobile) --}}
-            <div class="lg:col-span-2 hidden lg:block">
+            {{-- Compact Shopping Cart --}}
+            <div class="lg:col-span-2">
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sticky top-6">
-                    {{-- Cart Header --}}
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">🛒 Keranjang</h3>
-                        @if(!empty($cartItems))
-                        <button wire:click="clearCart"
-                            class="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">
-                            Kosongkan
-                        </button>
-                        @endif
+                    {{-- Header with Tenant Info --}}
+                    <div class="flex items-center space-x-3 mb-4">
+
+                        {{-- Tenant Name & Cart Title --}}
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-xs font-medium text-gray-500 dark:text-gray-400">Keranjang</h3>
+                                @if(!empty($cartItems))
+                                <button wire:click="clearCart"
+                                    class="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">
+                                    Kosongkan
+                                </button>
+                                @endif
+                            </div>
+                        </div>
                     </div>
 
-                    {{-- Cart Items Desktop --}}
-                    <div class="max-h-[500px] overflow-y-auto mb-4 space-y-3" wire:key="cart-items" style="scroll-behavior: smooth;">
+                    {{-- Cart Items --}}
+                    <div class="max-h-64 overflow-y-auto mb-4 space-y-3" wire:key="cart-items">
                         @php
                         $dineInItems = collect($cartItems)->filter(fn ($i) => $i['order_type'] === 'dine_in');
                         $takeAwayItems = collect($cartItems)->filter(fn ($i) => $i['order_type'] === 'take_away');
@@ -204,21 +211,20 @@
                         @if($dineInItems->isNotEmpty())
                         <div>
                             <p
-                                class="text-[10px] font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider mb-1.5 flex items-center gap-2">
-                                <span>🍽️ Dine In</span>
-                                <span
-                                    class="text-[9px] bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 px-2 py-0.5 rounded-full">
-                                    {{ $dineInItems->count() }} item
-                                </span>
+                                class="text-[10px] font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider mb-1.5">
+                                🍽️ Dine In ({{ $dineInItems->count() }})
                             </p>
                             <div class="space-y-2">
-                                @foreach($dineInItems as $item)
+                                @foreach($dineInItems as $index => $item)
                                 @php
                                 $originalIndex = array_search($item, $this->cartItems, true);
-                                if ($originalIndex === false) $originalIndex = $loop->index;
+                                if ($originalIndex === false) {
+                                $originalIndex = $index;
+                                }
                                 @endphp
                                 <div class="p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                    <div class="flex items-start gap-2">
+                                    {{-- GAMBAR PRODUK --}}
+                                    <div class="flex items-start gap-2 mb-1">
                                         @if(isset($item['photo']))
                                         <img src="{{ route('photo.show', ['path' => $item['photo']]) }}"
                                             alt="{{ $item['product_name'] }}"
@@ -234,13 +240,19 @@
                                         </div>
                                         @endif
 
+                                        {{-- =========================================================== --}}
+                                        {{-- LETAKKAN KODE ITEM CART DI SINI (GANTI YANG LAMA) --}}
+                                        {{-- =========================================================== --}}
                                         <div class="flex-1 min-w-0">
+                                            {{-- Nama produk dengan badge order type --}}
+                                            {{-- Di dalam item cart, setelah nama produk --}}
                                             <div class="flex items-center justify-between">
                                                 <div class="flex items-center gap-2">
                                                     <span
                                                         class="font-semibold text-gray-900 dark:text-white text-sm leading-tight">
                                                         {{ $item['product_name'] }}
                                                     </span>
+                                                    {{-- Badge jumlah jika > 1 --}}
                                                     @if($item['quantity'] > 1)
                                                     <span
                                                         class="text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded-full font-medium">
@@ -249,6 +261,9 @@
                                                     @endif
                                                 </div>
                                                 <div class="flex items-center gap-1 shrink-0 ml-2">
+
+
+                                                    {{-- Tombol Edit --}}
                                                     <button wire:click="openEditVariantModal({{ $originalIndex }})"
                                                         class="w-6 h-6 flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-200 dark:hover:bg-blue-800/50 transition-colors duration-150"
                                                         title="Edit varian">
@@ -259,6 +274,8 @@
                                                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                         </svg>
                                                     </button>
+
+                                                    {{-- Tombol Hapus --}}
                                                     <button wire:click="removeFromCart({{ $originalIndex }})"
                                                         class="w-6 h-6 flex items-center justify-center bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors duration-150"
                                                         title="Hapus item">
@@ -271,6 +288,7 @@
                                                 </div>
                                             </div>
 
+                                            {{-- Tampilkan semua varian dengan detail --}}
                                             @if(!empty($item['variant_details']))
                                             <div class="space-y-0.5 mt-1">
                                                 @foreach($item['variant_details'] as $variant)
@@ -290,6 +308,7 @@
                                             </div>
                                             @endif
 
+                                            {{-- Harga --}}
                                             <div class="flex items-center justify-between mt-1">
                                                 <span class="text-xs text-gray-500 dark:text-gray-400 line-through">
                                                     Rp {{ number_format($item['base_price'], 0, ',', '.') }}
@@ -298,20 +317,27 @@
                                                     Rp {{ number_format($item['final_price'], 0, ',', '.') }}
                                                 </span>
                                             </div>
-
-                                            <div class="mt-1">
-                                                <p class="text-[10px] font-medium text-gray-600 dark:text-gray-400 truncate">
-                                                    {{ $item['tenant'] ?? 'Tenant' }}
-                                                </p>
-                                                <p class="text-[10px] text-gray-500 dark:text-gray-400 truncate">
-                                                    {{ $item['foodcourt_location'] }}
-                                                </p>
-                                            </div>
                                         </div>
+                                        {{-- =========================================================== --}}
+                                        {{-- AKHIR KODE ITEM CART --}}
+                                        {{-- =========================================================== --}}
                                     </div>
 
-                                    <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-600">
-                                        <div class="flex items-center space-x-1">
+                                    {{-- Tenant, Foodcourt & Quantity Controls --}}
+                                    <div class="flex items-center justify-between mt-1">
+                                        <div class="flex-1 min-w-0">
+                                            <p
+                                                class="text-[10px] font-medium text-gray-600 dark:text-gray-400 truncate">
+                                                {{ $item['tenant'] ?? 'Tenant' }}
+                                            </p>
+                                            <p
+                                                class="text-[10px] font-medium text-gray-500 dark:text-gray-400 truncate">
+                                                {{ $item['foodcourt_location'] }}
+                                            </p>
+                                        </div>
+
+                                        {{-- Quantity Controls --}}
+                                        <div class="flex items-center space-x-1 shrink-0">
                                             <button
                                                 wire:click="updateCartQuantity({{ $originalIndex }}, {{ $item['quantity'] - 1 }})"
                                                 class="w-6 h-6 flex items-center justify-center bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-150 text-sm font-medium">
@@ -326,14 +352,9 @@
                                                 +
                                             </button>
                                         </div>
-                                        @if($item['quantity'] > 1)
-                                        <span class="text-[10px] text-gray-500 dark:text-gray-400">
-                                            Subtotal: <span class="font-semibold text-gray-900 dark:text-white">Rp {{
-                                                number_format($item['subtotal'], 0, ',', '.') }}</span>
-                                        </span>
-                                        @endif
                                     </div>
 
+                                    {{-- Di dalam item cart, setelah quantity controls --}}
                                     <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-600">
                                         <div class="flex items-center gap-2">
                                             <svg class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0"
@@ -352,6 +373,19 @@
                                         </div>
                                         @endif
                                     </div>
+
+                                    {{-- Tampilkan subtotal per item --}}
+                                    @if($item['quantity'] > 1)
+                                    <div class="text-right mt-1 pt-1 border-t border-gray-100 dark:border-gray-600">
+                                        <span class="text-[10px] text-gray-500 dark:text-gray-400">
+                                            {{ $item['quantity'] }} x Rp {{ number_format($item['final_price'], 0, ',',
+                                            '.') }} =
+                                        </span>
+                                        <span class="text-xs font-semibold text-gray-900 dark:text-white">
+                                            Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
+                                        </span>
+                                    </div>
+                                    @endif
                                 </div>
                                 @endforeach
                             </div>
@@ -362,21 +396,20 @@
                         @if($takeAwayItems->isNotEmpty())
                         <div>
                             <p
-                                class="text-[10px] font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-1.5 flex items-center gap-2">
-                                <span>📦 Take Away</span>
-                                <span
-                                    class="text-[9px] bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
-                                    {{ $takeAwayItems->count() }} item
-                                </span>
+                                class="text-[10px] font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                                📦 Take Away ({{ $takeAwayItems->count() }})
                             </p>
                             <div class="space-y-2">
-                                @foreach($takeAwayItems as $item)
+                                @foreach($takeAwayItems as $index => $item)
                                 @php
                                 $originalIndex = array_search($item, $this->cartItems, true);
-                                if ($originalIndex === false) $originalIndex = $loop->index;
+                                if ($originalIndex === false) {
+                                $originalIndex = $index;
+                                }
                                 @endphp
                                 <div class="p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                    <div class="flex items-start gap-2">
+                                    {{-- GAMBAR PRODUK --}}
+                                    <div class="flex items-start gap-2 mb-1">
                                         @if(isset($item['photo']))
                                         <img src="{{ route('photo.show', ['path' => $item['photo']]) }}"
                                             alt="{{ $item['product_name'] }}"
@@ -392,13 +425,16 @@
                                         </div>
                                         @endif
 
+                                        {{-- ITEM CART --}}
                                         <div class="flex-1 min-w-0">
+                                            {{-- Nama produk dengan badge order type --}}
                                             <div class="flex items-center justify-between">
                                                 <div class="flex items-center gap-2">
                                                     <span
                                                         class="font-semibold text-gray-900 dark:text-white text-sm leading-tight">
                                                         {{ $item['product_name'] }}
                                                     </span>
+                                                    {{-- Badge jumlah jika > 1 --}}
                                                     @if($item['quantity'] > 1)
                                                     <span
                                                         class="text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded-full font-medium">
@@ -407,6 +443,9 @@
                                                     @endif
                                                 </div>
                                                 <div class="flex items-center gap-1 shrink-0 ml-2">
+
+
+                                                    {{-- Tombol Edit --}}
                                                     <button wire:click="openEditVariantModal({{ $originalIndex }})"
                                                         class="w-6 h-6 flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-200 dark:hover:bg-blue-800/50 transition-colors duration-150"
                                                         title="Edit varian">
@@ -417,6 +456,8 @@
                                                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                         </svg>
                                                     </button>
+
+                                                    {{-- Tombol Hapus --}}
                                                     <button wire:click="removeFromCart({{ $originalIndex }})"
                                                         class="w-6 h-6 flex items-center justify-center bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors duration-150"
                                                         title="Hapus item">
@@ -429,6 +470,7 @@
                                                 </div>
                                             </div>
 
+                                            {{-- Tampilkan semua varian dengan detail --}}
                                             @if(!empty($item['variant_details']))
                                             <div class="space-y-0.5 mt-1">
                                                 @foreach($item['variant_details'] as $variant)
@@ -448,6 +490,7 @@
                                             </div>
                                             @endif
 
+                                            {{-- Harga --}}
                                             <div class="flex items-center justify-between mt-1">
                                                 <span class="text-xs text-gray-500 dark:text-gray-400 line-through">
                                                     Rp {{ number_format($item['base_price'], 0, ',', '.') }}
@@ -456,20 +499,24 @@
                                                     Rp {{ number_format($item['final_price'], 0, ',', '.') }}
                                                 </span>
                                             </div>
-
-                                            <div class="mt-1">
-                                                <p class="text-[10px] font-medium text-gray-600 dark:text-gray-400 truncate">
-                                                    {{ $item['tenant'] ?? 'Tenant' }}
-                                                </p>
-                                                <p class="text-[10px] text-gray-500 dark:text-gray-400 truncate">
-                                                    {{ $item['foodcourt_location'] }}
-                                                </p>
-                                            </div>
                                         </div>
                                     </div>
 
-                                    <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-600">
-                                        <div class="flex items-center space-x-1">
+                                    {{-- Tenant, Foodcourt & Quantity Controls --}}
+                                    <div class="flex items-center justify-between mt-1">
+                                        <div class="flex-1 min-w-0">
+                                            <p
+                                                class="text-[10px] font-medium text-gray-600 dark:text-gray-400 truncate">
+                                                {{ $item['tenant'] ?? 'Tenant' }}
+                                            </p>
+                                            <p
+                                                class="text-[10px] font-medium text-gray-500 dark:text-gray-400 truncate">
+                                                {{ $item['foodcourt_location'] }}
+                                            </p>
+                                        </div>
+
+                                        {{-- Quantity Controls --}}
+                                        <div class="flex items-center space-x-1 shrink-0">
                                             <button
                                                 wire:click="updateCartQuantity({{ $originalIndex }}, {{ $item['quantity'] - 1 }})"
                                                 class="w-6 h-6 flex items-center justify-center bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-150 text-sm font-medium">
@@ -484,14 +531,8 @@
                                                 +
                                             </button>
                                         </div>
-                                        @if($item['quantity'] > 1)
-                                        <span class="text-[10px] text-gray-500 dark:text-gray-400">
-                                            Subtotal: <span class="font-semibold text-gray-900 dark:text-white">Rp {{
-                                                number_format($item['subtotal'], 0, ',', '.') }}</span>
-                                        </span>
-                                        @endif
                                     </div>
-
+                                    {{-- Di dalam item cart, setelah quantity controls --}}
                                     <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-600">
                                         <div class="flex items-center gap-2">
                                             <svg class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0"
@@ -510,15 +551,29 @@
                                         </div>
                                         @endif
                                     </div>
+
+                                    {{-- Tampilkan subtotal per item --}}
+                                    @if($item['quantity'] > 1)
+                                    <div class="text-right mt-1 pt-1 border-t border-gray-100 dark:border-gray-600">
+                                        <span class="text-[10px] text-gray-500 dark:text-gray-400">
+                                            {{ $item['quantity'] }} x Rp {{ number_format($item['final_price'], 0, ',',
+                                            '.') }} =
+                                        </span>
+                                        <span class="text-xs font-semibold text-gray-900 dark:text-white">
+                                            Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
+                                        </span>
+                                    </div>
+                                    @endif
                                 </div>
                                 @endforeach
                             </div>
                         </div>
                         @endif
 
+                        {{-- Empty State --}}
                         @if(empty($cartItems))
-                        <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-                            <svg class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" fill="none"
+                        <div class="text-center py-6 text-gray-500 dark:text-gray-400">
+                            <svg class="w-10 h-10 mx-auto mb-2 text-gray-300 dark:text-gray-600" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
@@ -529,14 +584,18 @@
                         @endif
                     </div>
 
+                    {{-- Footer Total & Checkout --}}
                     @if(!empty($cartItems))
                     <div class="border-t border-gray-200 dark:border-gray-600 pt-3 space-y-3">
+                        {{-- Total --}}
                         <div class="flex justify-between items-center">
                             <span class="text-sm font-semibold text-gray-900 dark:text-white">Total</span>
                             <span class="text-lg font-bold text-primary-600 dark:text-primary-400">
                                 Rp {{ number_format($totalAmount, 0, ',', '.') }}
                             </span>
                         </div>
+
+                        {{-- Checkout Button --}}
                         <button wire:click="proceedToPayment" wire:loading.attr="disabled"
                             wire:target="proceedToPayment"
                             class="w-full px-4 py-2.5 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
@@ -566,254 +625,6 @@
                 </div>
             </div>
         </div>
-
-        {{-- MOBILE FLOATING CART BOTTOM SHEET --}}
-        <div class="lg:hidden fixed bottom-0 left-0 right-0 z-40">
-            <div 
-                x-data="{ open: false }"
-                class="bg-white dark:bg-gray-800 shadow-lg rounded-t-2xl border-t border-gray-200 dark:border-gray-700"
-            >
-                {{-- Cart Preview Bar --}}
-                <div 
-                    @click="open = !open"
-                    class="flex items-center justify-between px-4 py-3 cursor-pointer active:bg-gray-50 dark:active:bg-gray-700 transition-colors duration-150"
-                >
-                    <div class="flex items-center gap-3">
-                        <div class="relative">
-                            <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                            @if(!empty($cartItems))
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
-                                {{ $this->cartCount }}
-                            </span>
-                            @endif
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Keranjang</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                                @if(!empty($cartItems))
-                                    {{ $this->cartCount }} item • Rp {{ number_format($totalAmount, 0, ',', '.') }}
-                                @else
-                                    Kosong
-                                @endif
-                            </p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        @if(!empty($cartItems))
-                        <span class="text-xs font-semibold text-primary-600 dark:text-primary-400">
-                            Rp {{ number_format($totalAmount, 0, ',', '.') }}
-                        </span>
-                        @endif
-                        <svg class="w-5 h-5 text-gray-400 transition-transform duration-300" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </div>
-                </div>
-
-                {{-- Cart Expanded Content --}}
-                <div 
-                    x-show="open"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0 transform translate-y-4"
-                    x-transition:enter-end="opacity-100 transform translate-y-0"
-                    x-transition:leave="transition ease-in duration-200"
-                    x-transition:leave-start="opacity-100 transform translate-y-0"
-                    x-transition:leave-end="opacity-0 transform translate-y-4"
-                    class="max-h-[60vh] overflow-y-auto border-t border-gray-100 dark:border-gray-700"
-                    style="scroll-behavior: smooth;"
-                >
-                    <div class="p-4 space-y-3">
-                        {{-- Mobile Cart Items --}}
-                        @php
-                        $dineInItemsMobile = collect($cartItems)->filter(fn ($i) => $i['order_type'] === 'dine_in');
-                        $takeAwayItemsMobile = collect($cartItems)->filter(fn ($i) => $i['order_type'] === 'take_away');
-                        @endphp
-
-                        @if($dineInItemsMobile->isNotEmpty())
-                        <div>
-                            <p class="text-[10px] font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider mb-1.5 flex items-center gap-2">
-                                <span>🍽️ Dine In</span>
-                                <span class="text-[9px] bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 px-2 py-0.5 rounded-full">
-                                    {{ $dineInItemsMobile->count() }} item
-                                </span>
-                            </p>
-                            @foreach($dineInItemsMobile as $item)
-                            @php
-                            $originalIndex = array_search($item, $this->cartItems, true);
-                            if ($originalIndex === false) $originalIndex = $loop->index;
-                            @endphp
-                            <div class="p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                <div class="flex items-start gap-2">
-                                    @if(isset($item['photo']))
-                                    <img src="{{ route('photo.show', ['path' => $item['photo']]) }}"
-                                        alt="{{ $item['product_name'] }}" 
-                                        class="w-10 h-10 rounded object-cover shrink-0">
-                                    @else
-                                    <div class="w-10 h-10 rounded bg-gray-200 dark:bg-gray-600 flex items-center justify-center shrink-0">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
-                                    </div>
-                                    @endif
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-center justify-between">
-                                            <span class="font-semibold text-gray-900 dark:text-white text-xs leading-tight">
-                                                {{ $item['product_name'] }}
-                                            </span>
-                                            <div class="flex items-center gap-1">
-                                                <button wire:click="removeFromCart({{ $originalIndex }})"
-                                                    class="w-5 h-5 flex items-center justify-center bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors duration-150"
-                                                    title="Hapus item">
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center justify-between mt-1">
-                                            <span class="text-[10px] text-gray-500 dark:text-gray-400 line-through">
-                                                Rp {{ number_format($item['base_price'], 0, ',', '.') }}
-                                            </span>
-                                            <span class="text-xs font-bold text-primary-600 dark:text-primary-400">
-                                                Rp {{ number_format($item['final_price'], 0, ',', '.') }}
-                                            </span>
-                                        </div>
-                                        <div class="flex items-center justify-between mt-1">
-                                            <div class="flex items-center space-x-1">
-                                                <button
-                                                    wire:click="updateCartQuantity({{ $originalIndex }}, {{ $item['quantity'] - 1 }})"
-                                                    class="w-5 h-5 flex items-center justify-center bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-150 text-xs font-medium">
-                                                    −
-                                                </button>
-                                                <span class="text-xs font-semibold text-gray-900 dark:text-white w-5 text-center">{{ $item['quantity'] }}</span>
-                                                <button
-                                                    wire:click="updateCartQuantity({{ $originalIndex }}, {{ $item['quantity'] + 1 }})"
-                                                    class="w-5 h-5 flex items-center justify-center bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-150 text-xs font-medium">
-                                                    +
-                                                </button>
-                                            </div>
-                                            <span class="text-[9px] text-gray-500 dark:text-gray-400">
-                                                Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                        @endif
-
-                        @if($takeAwayItemsMobile->isNotEmpty())
-                        <div>
-                            <p class="text-[10px] font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-1.5 flex items-center gap-2">
-                                <span>📦 Take Away</span>
-                                <span class="text-[9px] bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
-                                    {{ $takeAwayItemsMobile->count() }} item
-                                </span>
-                            </p>
-                            @foreach($takeAwayItemsMobile as $item)
-                            @php
-                            $originalIndex = array_search($item, $this->cartItems, true);
-                            if ($originalIndex === false) $originalIndex = $loop->index;
-                            @endphp
-                            <div class="p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                <div class="flex items-start gap-2">
-                                    @if(isset($item['photo']))
-                                    <img src="{{ route('photo.show', ['path' => $item['photo']]) }}"
-                                        alt="{{ $item['product_name'] }}" 
-                                        class="w-10 h-10 rounded object-cover shrink-0">
-                                    @else
-                                    <div class="w-10 h-10 rounded bg-gray-200 dark:bg-gray-600 flex items-center justify-center shrink-0">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
-                                    </div>
-                                    @endif
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-center justify-between">
-                                            <span class="font-semibold text-gray-900 dark:text-white text-xs leading-tight">
-                                                {{ $item['product_name'] }}
-                                            </span>
-                                            <div class="flex items-center gap-1">
-                                                <button wire:click="removeFromCart({{ $originalIndex }})"
-                                                    class="w-5 h-5 flex items-center justify-center bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors duration-150"
-                                                    title="Hapus item">
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center justify-between mt-1">
-                                            <span class="text-[10px] text-gray-500 dark:text-gray-400 line-through">
-                                                Rp {{ number_format($item['base_price'], 0, ',', '.') }}
-                                            </span>
-                                            <span class="text-xs font-bold text-gray-700 dark:text-gray-300">
-                                                Rp {{ number_format($item['final_price'], 0, ',', '.') }}
-                                            </span>
-                                        </div>
-                                        <div class="flex items-center justify-between mt-1">
-                                            <div class="flex items-center space-x-1">
-                                                <button
-                                                    wire:click="updateCartQuantity({{ $originalIndex }}, {{ $item['quantity'] - 1 }})"
-                                                    class="w-5 h-5 flex items-center justify-center bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-150 text-xs font-medium">
-                                                    −
-                                                </button>
-                                                <span class="text-xs font-semibold text-gray-900 dark:text-white w-5 text-center">{{ $item['quantity'] }}</span>
-                                                <button
-                                                    wire:click="updateCartQuantity({{ $originalIndex }}, {{ $item['quantity'] + 1 }})"
-                                                    class="w-5 h-5 flex items-center justify-center bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-150 text-xs font-medium">
-                                                    +
-                                                </button>
-                                            </div>
-                                            <span class="text-[9px] text-gray-500 dark:text-gray-400">
-                                                Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                        @endif
-
-                        @if(empty($cartItems))
-                        <div class="text-center py-6 text-gray-500 dark:text-gray-400">
-                            <p class="text-sm font-medium">Keranjang kosong</p>
-                        </div>
-                        @endif
-                    </div>
-                </div>
-
-                {{-- Checkout Button --}}
-                @if(!empty($cartItems))
-                <div class="p-4 border-t border-gray-100 dark:border-gray-700">
-                    <button 
-                        wire:click="proceedToPayment"
-                        wire:loading.attr="disabled"
-                        wire:target="proceedToPayment"
-                        class="w-full px-4 py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-                    >
-                        <span wire:loading.remove wire:target="proceedToPayment" class="flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                            Checkout ({{ $this->cartCount }})
-                        </span>
-                        <span wire:loading wire:target="proceedToPayment" class="flex items-center justify-center gap-2">
-                            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Memproses...
-                        </span>
-                    </button>
-                </div>
-                @endif
-            </div>
-        </div>
         @endif
 
         {{-- Step 2: Payment & Confirmation --}}
@@ -824,6 +635,7 @@
                 <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Informasi Pembayaran</h3>
 
                 <div class="space-y-4">
+                    {{-- Customer Name --}}
                     <div>
                         <label for="customerName"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -834,6 +646,7 @@
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                     </div>
 
+                    {{-- Note Transaksi --}}
                     <div>
                         <label for="transactionNote"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -844,6 +657,7 @@
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"></textarea>
                     </div>
 
+                    {{-- Payment Method --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Metode Pembayaran
@@ -893,13 +707,15 @@
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Ringkasan Pesanan</h3>
 
-                <div class="max-h-64 overflow-y-auto mb-4 space-y-3" style="scroll-behavior: smooth;">
+                <div class="max-h-64 overflow-y-auto mb-4 space-y-3">
                     @if(!empty($cartItems))
                     @php
+                    // Group items by order_type
                     $summaryDineIn = collect($cartItems)->filter(fn ($i) => $i['order_type'] === 'dine_in');
                     $summaryTakeAway = collect($cartItems)->filter(fn ($i) => $i['order_type'] === 'take_away');
                     @endphp
 
+                    {{-- Dine In Group --}}
                     @if($summaryDineIn->isNotEmpty())
                     <div>
                         <p
@@ -914,10 +730,13 @@
                             @foreach($summaryDineIn as $index => $item)
                             @php
                             $originalIndex = array_search($item, $this->cartItems, true);
-                            if ($originalIndex === false) $originalIndex = $index;
+                            if ($originalIndex === false) {
+                            $originalIndex = $index;
+                            }
                             @endphp
                             <div class="p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                 <div class="flex items-start gap-2">
+                                    {{-- Gambar --}}
                                     @if(isset($item['photo']) && $item['photo'])
                                     <img src="{{ route('photo.show', ['path' => $item['photo']]) }}"
                                         alt="{{ $item['product_name'] }}"
@@ -933,11 +752,13 @@
                                     </div>
                                     @endif
 
+                                    {{-- Info Produk --}}
                                     <div class="flex-1 min-w-0">
                                         <span class="font-semibold text-gray-900 dark:text-white text-sm">
                                             {{ $item['product_name'] }}
                                         </span>
 
+                                        {{-- Tampilkan varian dengan detail --}}
                                         @if(!empty($item['variant_details']))
                                         <div class="space-y-0.5 mt-1">
                                             @foreach($item['variant_details'] as $variant)
@@ -957,6 +778,7 @@
                                         </div>
                                         @endif
 
+                                        {{-- Harga: Base price (coret) + Final price --}}
                                         <div class="flex items-center justify-between mt-1">
                                             <span class="text-xs text-gray-500 dark:text-gray-400 line-through">
                                                 Rp {{ number_format($item['base_price'], 0, ',', '.') }}
@@ -966,6 +788,7 @@
                                             </span>
                                         </div>
 
+                                        {{-- Tenant & Foodcourt --}}
                                         <div class="mt-1">
                                             <p
                                                 class="text-[10px] font-medium text-gray-600 dark:text-gray-400 truncate">
@@ -976,12 +799,14 @@
                                             </p>
                                         </div>
 
+                                        {{-- Note item --}}
                                         @if(!empty($itemNotes[$originalIndex] ?? ''))
                                         <p class="text-[10px] text-blue-600 dark:text-blue-400 mt-0.5">
                                             📝 {{ $itemNotes[$originalIndex] }}
                                         </p>
                                         @endif
 
+                                        {{-- Quantity & Subtotal --}}
                                         <div
                                             class="flex items-center justify-between mt-1 pt-1 border-t border-gray-100 dark:border-gray-600">
                                             <span class="text-[10px] text-gray-500 dark:text-gray-400">
@@ -1000,6 +825,7 @@
                     </div>
                     @endif
 
+                    {{-- Take Away Group --}}
                     @if($summaryTakeAway->isNotEmpty())
                     <div>
                         <p
@@ -1014,10 +840,13 @@
                             @foreach($summaryTakeAway as $index => $item)
                             @php
                             $originalIndex = array_search($item, $this->cartItems, true);
-                            if ($originalIndex === false) $originalIndex = $index;
+                            if ($originalIndex === false) {
+                            $originalIndex = $index;
+                            }
                             @endphp
                             <div class="p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                 <div class="flex items-start gap-2">
+                                    {{-- Gambar --}}
                                     @if(isset($item['photo']) && $item['photo'])
                                     <img src="{{ route('photo.show', ['path' => $item['photo']]) }}"
                                         alt="{{ $item['product_name'] }}"
@@ -1033,11 +862,13 @@
                                     </div>
                                     @endif
 
+                                    {{-- Info Produk --}}
                                     <div class="flex-1 min-w-0">
                                         <span class="font-semibold text-gray-900 dark:text-white text-sm">
                                             {{ $item['product_name'] }}
                                         </span>
 
+                                        {{-- Tampilkan varian dengan detail --}}
                                         @if(!empty($item['variant_details']))
                                         <div class="space-y-0.5 mt-1">
                                             @foreach($item['variant_details'] as $variant)
@@ -1057,6 +888,7 @@
                                         </div>
                                         @endif
 
+                                        {{-- Harga: Base price (coret) + Final price --}}
                                         <div class="flex items-center justify-between mt-1">
                                             <span class="text-xs text-gray-500 dark:text-gray-400 line-through">
                                                 Rp {{ number_format($item['base_price'], 0, ',', '.') }}
@@ -1066,6 +898,7 @@
                                             </span>
                                         </div>
 
+                                        {{-- Tenant & Foodcourt --}}
                                         <div class="mt-1">
                                             <p
                                                 class="text-[10px] font-medium text-gray-600 dark:text-gray-400 truncate">
@@ -1076,12 +909,14 @@
                                             </p>
                                         </div>
 
+                                        {{-- Note item --}}
                                         @if(!empty($itemNotes[$originalIndex] ?? ''))
                                         <p class="text-[10px] text-blue-600 dark:text-blue-400 mt-0.5">
                                             📝 {{ $itemNotes[$originalIndex] }}
                                         </p>
                                         @endif
 
+                                        {{-- Quantity & Subtotal --}}
                                         <div
                                             class="flex items-center justify-between mt-1 pt-1 border-t border-gray-100 dark:border-gray-600">
                                             <span class="text-[10px] text-gray-500 dark:text-gray-400">
@@ -1107,6 +942,7 @@
                     @endif
                 </div>
 
+                {{-- Note Transaksi --}}
                 @if(!empty($transactionNote))
                 <div
                     class="mb-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
@@ -1129,7 +965,6 @@
         </div>
         @endif
 
-        {{-- Confirmation Modal --}}
         @if($showConfirmation && $transactionData)
         <div class="fixed inset-0 bg-gray-100 bg-opacity-75 flex items-center justify-center z-50">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
@@ -1199,15 +1034,18 @@
         </div>
         @endif
 
-        {{-- Product Modal --}}
+        {{-- modal --}}
         @if($showProductModal && $selectedProduct)
         <div x-data x-effect="document.body.classList.toggle('overflow-hidden', $wire.showProductModal)"
             class="fixed inset-0 z-50 flex items-center justify-center px-4">
+            {{-- HAPUS wire:click dari overlay --}}
             <div class="absolute inset-0 backdrop-blur-sm bg-black/10">
             </div>
 
+            {{-- container jadi flex-col, tinggi dibatasi, footer nanti gak ikut kescroll --}}
             <div
                 class="relative w-full max-w-md bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-xl shadow-lg flex flex-col max-h-[90vh]">
+
 
                 <button wire:click="closeProductModal"
                     class="absolute top-2 right-2 flex items-center gap-1.5 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded-lg shadow-lg transition-all duration-150 z-10">
@@ -1218,6 +1056,7 @@
                     Tutup
                 </button>
 
+                {{-- AREA YANG BISA DI-SCROLL --}}
                 <div class="overflow-y-auto p-4 flex-1 min-h-0">
                     @php
                     $photos = $selectedProduct->photos ?? [];
@@ -1249,7 +1088,7 @@
                         <svg class="w-16 h-16 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                     </div>
                     @endif
@@ -1263,7 +1102,9 @@
                             <span class="font-semibold text-primary-600 dark:text-primary-400 text-sm">
                                 Rp {{ number_format($selectedProduct->price, 0, ',', '.') }}
                             </span>
+
                             <span class="text-gray-300 dark:text-gray-600">•</span>
+
                             <span class="text-gray-500 dark:text-gray-400">
                                 Stok {{ $selectedProduct->stock }}
                             </span>
@@ -1290,6 +1131,7 @@
                         </div>
                         @endif
 
+                        {{-- PILIHAN VARIAN --}}
                         @if($selectedProduct->has_variants && $selectedProduct->variantOptions->isNotEmpty())
                         <div class="border-t border-gray-100 dark:border-gray-700 pt-2 space-y-3">
                             @foreach($selectedProduct->variantOptions as $group)
@@ -1349,9 +1191,11 @@
                     </div>
                 </div>
 
+                {{-- FOOTER STICKY --}}
                 <div
                     class="shrink-0 flex gap-2 p-4 border-t border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 rounded-b-xl">
                     @if($editMode)
+                    {{-- Mode Edit: Tampilkan tombol "Done" --}}
                     <button wire:click="submitEditVariant" wire:loading.attr="disabled"
                         class="flex-1 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1369,16 +1213,20 @@
                             </svg>
                         </span>
                     </button>
+
+                    {{-- Tombol Batal --}}
                     <button wire:click="closeProductModal"
                         class="flex-1 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-150">
                         Batal
                     </button>
                     @else
+                    {{-- Mode Tambah Baru: Tampilkan Dine In & Take Away --}}
                     <button wire:click="submitAddToCart('dine_in')" wire:loading.attr="disabled"
                         class="flex-1 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
                         <span wire:loading.remove wire:target="submitAddToCart('dine_in')">Dine In</span>
                         <span wire:loading wire:target="submitAddToCart('dine_in')">...</span>
                     </button>
+
                     <button wire:click="submitAddToCart('take_away')" wire:loading.attr="disabled"
                         class="flex-1 py-2.5 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
                         <span wire:loading.remove wire:target="submitAddToCart('take_away')">Take Away</span>
@@ -1393,7 +1241,6 @@
 
     </div>
 
-    {{-- Loading Overlay --}}
     <div wire:loading.delay.longer wire:target="processTransaction,printReceipt"
         class="fixed inset-0 bg-black bg-opacity-25 flex items-center justify-center z-40 transition-opacity duration-300">
         <div
@@ -1484,27 +1331,53 @@
                 }
             });
 
+            // Handler untuk membuka WhatsApp
             Livewire.on('open-whatsapp', (data) => {
+                console.log('Data received from Livewire:', data);
+                console.log('Data type:', typeof data);
+                console.log('Data structure:', JSON.stringify(data));
                 let url = '';
+
                 if (Array.isArray(data) && data.length > 0) {
+                    console.log('Data is array, first element:', data[0]);
                     if (data[0] && data[0].url) {
                         url = data[0].url;
+                    } else if (typeof data[0] === 'string') {
+                        url = data[0];
                     }
+                } else if (typeof data === 'string') {
+                    url = data;
                 } else if (data && data.url) {
                     url = data.url;
                 }
-                if (url && url.startsWith('https://wa.me/')) {
-                    try {
-                        const newWindow = window.open(url, '_blank');
-                        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+
+                console.log('Extracted URL:', url);
+
+                if (url && typeof url === 'string' && url.length > 0) {
+                    // Validasi URL WhatsApp
+                    if (url.startsWith('https://wa.me/')) {
+                        console.log('Opening WhatsApp with URL:', url);
+
+                        try {
+                            const newWindow = window.open(url, '_blank');
+                            if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                                window.location.href = url;
+                            }
+                        } catch (e) {
+                            console.error('Error opening WhatsApp:', e);
                             window.location.href = url;
                         }
-                    } catch (e) {
-                        window.location.href = url;
+                    } else {
+                        alert('URL WhatsApp tidak valid. Silakan coba lagi.');
                     }
+                } else {
+
+                    const fallbackUrl = 'https://wa.me/?text=Test%20dari%20POS%20System';
+                    window.open(fallbackUrl, '_blank');
                 }
             });
         });
+
     </script>
     @endpush
 </x-filament-panels::page>

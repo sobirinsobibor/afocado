@@ -21,9 +21,9 @@ class PosTenantResource extends Resource
 {
     protected static ?string $model = PosTenant::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shopping-cart';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Point of Sale';
+    protected static string | UnitEnum | null $navigationGroup = 'Master Data';
 
     protected static ?string $recordTitleAttribute = 'Tenant';
 

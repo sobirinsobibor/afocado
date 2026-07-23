@@ -24,12 +24,23 @@ return new class extends Migration
             $table->string('cashier_name')->nullable();
             $table->timestamp('transaction_date')->useCurrent();
             $table->text('note');
+            $table->foreignId('order_point_id')
+                ->nullable()
+                ->constrained('restaurant_tables');
+            
+            $table->string('order_point_name')->nullable();
+            $table->string('order_point_type')->nullable();
+
+            // 🔥 FLAG PENTING
+            $table->boolean('is_self_order')->default(false);
+
             $table->timestamps();
             
             // Index untuk pencarian
             $table->index(['transaction_code']);
             $table->index(['transaction_date']);
             $table->index(['customer_name']);
+            $table->index(['is_self_order']);
         });
     }
 

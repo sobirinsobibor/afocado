@@ -17,6 +17,8 @@ use UnitEnum;
 
 class RestaurantOrderResource extends Resource
 {
+    protected static bool $shouldRegisterNavigation = false; 
+    
     protected static ?string $model = RestaurantOrder::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CurrencyDollar;

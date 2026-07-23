@@ -5,6 +5,7 @@ namespace Modules\Pos\Filament\Resources\PosUnits\Tables;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class PosUnitsTable
@@ -15,10 +16,8 @@ class PosUnitsTable
             ->columns([
                 TextColumn::make('#')->rowIndex(),
                 TextColumn::make('name')->label('Nama Unit')->searchable(),
-                TextColumn::make('slug')->label('Slug')->searchable(),
-                TextColumn::make('type')->label('Tipe')->searchable(),
                 TextColumn::make('description')->label('Deskripsi')->limit(80),
-                IconColumn::make('is_active')->label('Aktif')->boolean(),
+                ToggleColumn::make('is_active')->label('Aktif'),
             ])
             ->recordActions([
                 EditAction::make()->button()->hiddenLabel(),

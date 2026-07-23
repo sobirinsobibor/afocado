@@ -17,6 +17,8 @@ use UnitEnum;
 
 class RestaurantMenuItemResource extends Resource
 {
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?string $model = RestaurantMenuItem::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::QueueList;

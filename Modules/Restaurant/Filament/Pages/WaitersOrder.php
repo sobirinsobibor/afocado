@@ -17,9 +17,11 @@ use Carbon\Carbon;
 
 class WaitersOrder extends Page
 {
+    protected static bool $shouldRegisterNavigation = false;
+
     protected string $view = 'restaurant::filament.pages.waiters-order';
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static ?string $navigationLabel = 'Input Pesanan';
 

@@ -19,9 +19,9 @@ class PosProductCategoryResource extends Resource
 {
     protected static ?string $model = PosProductCategory::class;
 
-    protected static string | UnitEnum | null $navigationGroup = 'Point of Sale';
+    protected static string | UnitEnum | null $navigationGroup = 'Master Data';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-tag';
 
     protected static ?string $navigationLabel = 'Kategori Produk';
 

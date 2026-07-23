@@ -18,11 +18,11 @@ class PosReports extends Page
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chart-bar';
 
-    protected static ?string $navigationLabel = 'Laporan POS';
+    protected static ?string $navigationLabel = 'Laporan';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Point of Sale';
+    protected static string | UnitEnum | null $navigationGroup = 'Point of Sales';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $slug = 'pos-reports';
 

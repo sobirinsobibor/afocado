@@ -37,7 +37,10 @@ class PosTransaction extends Model
         'transaction_date',
         'note',
         'customer_phone',
-        'customer_email'
+        'customer_email',
+        'order_point_id',
+        'order_point_name',
+        'order_point_type',
     ];
 
     protected $casts = [

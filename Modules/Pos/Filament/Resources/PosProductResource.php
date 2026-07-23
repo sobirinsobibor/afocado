@@ -21,13 +21,13 @@ class PosProductResource extends Resource
 {
     protected static ?string $model = PosProduct::class;
 
-    protected static string | UnitEnum | null $navigationGroup = 'Point of Sale';
+    protected static string | UnitEnum | null $navigationGroup = 'Master Data';
 
     protected static ?string $navigationLabel = 'Daftar Produk';
 
-    protected static ?int $navigationSort = 4; 
+    protected static ?int $navigationSort = 5; 
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shopping-bag';
 
     public static function form(Schema $schema): Schema
     {

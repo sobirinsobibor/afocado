@@ -21,13 +21,14 @@ class PosCashier extends Page
 
     protected static ?string $navigationLabel = 'Kasir POS';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Point of Sale';
+    protected static string | UnitEnum | null $navigationGroup = 'Point of Sales';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $slug = 'pos-cashier';
 
     protected static ?string $title = 'Kasir Point of Sale';
+    
 
     public $selectedCategory = '';
     public $searchProduct = '';

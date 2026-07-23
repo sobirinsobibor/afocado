@@ -21,9 +21,9 @@ class PosFoodcourtLocationResource extends Resource
 {
     protected static ?string $model = PosFoodcourtLocation::class;
 
-    protected static string | UnitEnum | null $navigationGroup = 'Point of Sale';
+    protected static string | UnitEnum | null $navigationGroup = 'Master Data';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-storefront';
 
     protected static ?string $navigationLabel = 'Daftar Foodcourt';
 
